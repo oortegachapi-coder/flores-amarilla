@@ -2,23 +2,12 @@
    ELEMENTOS
 ===================================================== */
 
-const boton =
-    document.getElementById("comenzar");
-
-const inicio =
-    document.getElementById("inicio");
-
-const contenido =
-    document.getElementById("contenido");
-
-const musica =
-    document.getElementById("musica");
-
-const textoLetra =
-    document.getElementById("texto-letra");
-
-const final =
-    document.getElementById("final");
+const boton = document.getElementById("comenzar");
+const inicio = document.getElementById("inicio");
+const contenido = document.getElementById("contenido");
+const musica = document.getElementById("musica");
+const textoLetra = document.getElementById("texto-letra");
+const final = document.getElementById("final");
 
 
 /* =====================================================
@@ -33,21 +22,17 @@ const TIEMPO_FINAL = 89;
 ===================================================== */
 
 /*
-   COLOCA TUS FRASES DENTRO DE LAS COMILLAS.
+   ESCRIBE TUS FRASES DENTRO DE LAS COMILLAS.
 
    Ejemplo:
 
-   {
-       tiempo: 4,
-       texto: "Tu frase aquí"
-   }
+   { tiempo: 4, texto: "Tu frase aquí" }
 
    Los tiempos están expresados en segundos.
 */
 
 const letra = [
-
-    {
+   {
         tiempo: 4,
         texto: "Vámonos de aquí"
     },
@@ -63,7 +48,7 @@ const letra = [
     },
 
     {
-        tiempo: 20,
+        tiempo: 15,
         texto: "Como en las pedas y todo lo demás"
     },
 
@@ -120,11 +105,8 @@ const letra = [
 ===================================================== */
 
 let indiceActual = -1;
-
 let iniciado = false;
-
 let terminado = false;
-
 let animacionActual = null;
 
 
@@ -132,82 +114,51 @@ let animacionActual = null;
    INICIO
 ===================================================== */
 
-boton.addEventListener(
-    "click",
-    iniciar
-);
+boton.addEventListener("click", iniciar);
 
 
 async function iniciar() {
 
     if (iniciado) {
-
         return;
-
     }
 
-
     iniciado = true;
-
     terminado = false;
-
     indiceActual = -1;
 
+    inicio.classList.add("oculto");
 
-    /* ---------------------------------------------
-       Ocultar pantalla inicial
-    --------------------------------------------- */
-
-    inicio.classList.add(
-        "oculto"
-    );
-
-
-    /* ---------------------------------------------
-       Mostrar escena
-    --------------------------------------------- */
-
-    contenido.classList.add(
-        "visible"
-    );
-
-
-    /* ---------------------------------------------
-       Preparar música
-    --------------------------------------------- */
+    contenido.classList.add("visible");
 
     musica.currentTime = 0;
-
     musica.volume = 0.8;
 
-
-    /* ---------------------------------------------
-       Reproducir música
-    --------------------------------------------- */
-
     try {
+
+        /*
+           Recarga el audio antes de reproducirlo.
+        */
+
+        musica.load();
 
         await musica.play();
 
     } catch (error) {
 
-        console.log(
-            "No se pudo reproducir la música:",
+        console.error(
+            "No se pudo reproducir música.mp3:",
             error
         );
 
+        /*
+           La página continúa funcionando aunque
+           el navegador rechace el audio.
+        */
     }
 
-
-    /* ---------------------------------------------
-       Comenzar sincronización
-    --------------------------------------------- */
-
     animacionActual =
-        requestAnimationFrame(
-            actualizar
-        );
-
+        requestAnimationFrame(actualizar);
 }
 
 
@@ -217,42 +168,30 @@ async function iniciar() {
 
 function actualizar() {
 
-    if (
-        !iniciado ||
-        terminado
-    ) {
-
+    if (!iniciado || terminado) {
         return;
-
     }
 
-
-    const tiempo =
-        musica.currentTime;
+    const tiempo = musica.currentTime;
 
 
     /* ---------------------------------------------
-       Comprobar final
+       COMPROBAR FINAL
     --------------------------------------------- */
 
-    if (
-        tiempo >=
-        TIEMPO_FINAL
-    ) {
+    if (tiempo >= TIEMPO_FINAL) {
 
         terminar();
 
         return;
-
     }
 
 
     /* ---------------------------------------------
-       Buscar frase actual
+       BUSCAR FRASE ACTUAL
     --------------------------------------------- */
 
     let nuevoIndice = -1;
-
 
     for (
         let i = 0;
@@ -261,19 +200,16 @@ function actualizar() {
     ) {
 
         if (
-            tiempo >=
-            letra[i].tiempo
+            tiempo >= letra[i].tiempo
         ) {
 
             nuevoIndice = i;
-
         }
-
     }
 
 
     /* ---------------------------------------------
-       Cambiar frase
+       CAMBIAR FRASE
     --------------------------------------------- */
 
     if (
@@ -281,46 +217,32 @@ function actualizar() {
         nuevoIndice !== indiceActual
     ) {
 
-        indiceActual =
-            nuevoIndice;
-
+        indiceActual = nuevoIndice;
 
         const texto =
             letra[indiceActual].texto;
 
-
-        /*
-           Si el espacio está vacío,
-           no se muestra ninguna letra.
-        */
 
         if (
             texto &&
             texto.trim() !== ""
         ) {
 
-            mostrarTexto(
-                texto
-            );
+            mostrarTexto(texto);
 
         } else {
 
             ocultarTexto();
-
         }
-
     }
 
 
     /* ---------------------------------------------
-       Continuar sincronización
+       CONTINUAR
     --------------------------------------------- */
 
     animacionActual =
-        requestAnimationFrame(
-            actualizar
-        );
-
+        requestAnimationFrame(actualizar);
 }
 
 
@@ -328,37 +250,21 @@ function actualizar() {
    MOSTRAR TEXTO
 ===================================================== */
 
-function mostrarTexto(
-    texto
-) {
+function mostrarTexto(texto) {
 
-    textoLetra.classList.remove(
-        "mostrar"
-    );
+    textoLetra.classList.remove("mostrar");
 
+    setTimeout(function () {
 
-    setTimeout(
-        function() {
+        if (terminado) {
+            return;
+        }
 
-            if (terminado) {
+        textoLetra.textContent = texto;
 
-                return;
+        textoLetra.classList.add("mostrar");
 
-            }
-
-
-            textoLetra.textContent =
-                texto;
-
-
-            textoLetra.classList.add(
-                "mostrar"
-            );
-
-        },
-        250
-    );
-
+    }, 250);
 }
 
 
@@ -368,25 +274,16 @@ function mostrarTexto(
 
 function ocultarTexto() {
 
-    textoLetra.classList.remove(
-        "mostrar"
-    );
+    textoLetra.classList.remove("mostrar");
 
+    setTimeout(function () {
 
-    setTimeout(
-        function() {
+        if (!terminado) {
 
-            if (!terminado) {
+            textoLetra.textContent = "";
+        }
 
-                textoLetra.textContent =
-                    "";
-
-            }
-
-        },
-        500
-    );
-
+    }, 500);
 }
 
 
@@ -397,17 +294,14 @@ function ocultarTexto() {
 function terminar() {
 
     if (terminado) {
-
         return;
-
     }
-
 
     terminado = true;
 
 
     /* ---------------------------------------------
-       Detener sincronización
+       DETENER SINCRONIZACIÓN
     --------------------------------------------- */
 
     if (
@@ -419,94 +313,72 @@ function terminar() {
         );
 
         animacionActual = null;
-
     }
 
 
     /* ---------------------------------------------
-       Detener música
+       DETENER MÚSICA
     --------------------------------------------- */
 
     musica.pause();
 
 
     /* ---------------------------------------------
-       Ocultar letra
+       OCULTAR LETRA
     --------------------------------------------- */
 
-    textoLetra.classList.remove(
-        "mostrar"
-    );
+    textoLetra.classList.remove("mostrar");
 
+    setTimeout(function () {
 
-    setTimeout(
-        function() {
+        textoLetra.textContent = "";
 
-            textoLetra.textContent =
-                "";
-
-        },
-        500
-    );
+    }, 500);
 
 
     /* ---------------------------------------------
-       Mostrar pantalla final
+       MOSTRAR FINAL
     --------------------------------------------- */
 
-    setTimeout(
-        function() {
+    setTimeout(function () {
 
-            final.classList.add(
-                "visible"
-            );
+        final.classList.add("visible");
 
-        },
-        900
-    );
+    }, 900);
 
 
     /* ---------------------------------------------
-       Pausar luciérnagas
+       PAUSAR LUCIÉRNAGAS
     --------------------------------------------- */
 
-    setTimeout(
-        function() {
+    setTimeout(function () {
 
-            const particulas =
-                document.querySelectorAll(
-                    ".luciernagas span"
-                );
-
-
-            particulas.forEach(
-                function(particula) {
-
-                    particula.style.animationPlayState =
-                        "paused";
-
-                }
+        const particulas =
+            document.querySelectorAll(
+                ".luciernagas span"
             );
 
-        },
-        2500
-    );
+        particulas.forEach(function (particula) {
 
+            particula.style.animationPlayState =
+                "paused";
+
+        });
+
+    }, 2500);
 }
 
 
 /* =====================================================
-   SI EL AUDIO TERMINA NORMALMENTE
+   AUDIO TERMINADO
 ===================================================== */
 
 musica.addEventListener(
     "ended",
-    function() {
+    function () {
 
         if (!terminado) {
-
             terminar();
-
         }
 
     }
@@ -519,10 +391,10 @@ musica.addEventListener(
 
 musica.addEventListener(
     "error",
-    function() {
+    function () {
 
         console.error(
-            "No se pudo cargar música.mp3."
+            "ERROR: No se pudo cargar música.mp3."
         );
 
     }
@@ -530,12 +402,12 @@ musica.addEventListener(
 
 
 /* =====================================================
-   AUDIO CARGADO
+   AUDIO LISTO
 ===================================================== */
 
 musica.addEventListener(
     "canplaythrough",
-    function() {
+    function () {
 
         console.log(
             "✓ música.mp3 está listo para reproducirse."
